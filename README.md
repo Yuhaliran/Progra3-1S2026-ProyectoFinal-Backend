@@ -2,3 +2,5 @@
 
 ##Integrantes del Proyecto
 * **Abner Paredes** - 2294-23-17751 
+
+* **Informacion de prueba** - 123123132
