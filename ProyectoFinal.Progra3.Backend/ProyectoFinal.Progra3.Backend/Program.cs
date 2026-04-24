@@ -43,6 +43,10 @@ namespace ProyectoFinal.Progra3.Backend
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+#if DEBUG
+            builder.WebHost.UseUrls("https://localhost:6153", "http://localhost:6154");
+#endif
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
