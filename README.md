@@ -5,5 +5,5 @@
 * **José Méndez** - 2294-24-757
 * **Anelyn Laines** - 2294-23-187
 * **Damian Melendez** - 2294-24-548. 
-* **Jamie Marcela Puc García** - 2294-23-10292
+* **Jamie Puc** - 2294-23-10292
 
