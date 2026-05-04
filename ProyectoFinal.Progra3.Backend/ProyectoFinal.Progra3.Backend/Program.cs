@@ -6,6 +6,7 @@ namespace ProyectoFinal.Progra3.Backend
     using Microsoft.Data.SqlClient;
     using ProyectoFinal.Progra3.Backend.Repositorios.Interfaces;
     using ProyectoFinal.Progra3.Backend.Repositorios.Repositorios;
+    using ProyectoFinal.Progra3.Backend.Repositorios;
 
     public class Program
     {
@@ -37,6 +38,7 @@ namespace ProyectoFinal.Progra3.Backend
 
             // Add services to the container.
             builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+            builder.Services.AddScoped<ILibroRepository, LibroRepository>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
