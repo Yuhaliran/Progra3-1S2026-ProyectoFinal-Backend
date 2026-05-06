@@ -7,18 +7,18 @@
 
     public interface ILibroRepository
     {
-
         Task<IEnumerable<LibroResponse>> ObtenerTodosAsync();
 
-        Task<LibroResponse> ObtenerPorIdAsync(int id);
+
+        Task<LibroResponse> ObtenerPorIsbnAsync(string isbn);
 
 
-        Task<int> CrearAsync(CrearLibroRequest request);
+        Task<string> CrearAsync(CrearLibroRequest request);
 
 
-        Task<bool> ActualizarAsync(int id, CrearLibroRequest request);
+        Task<bool> ActualizarAsync(string isbn, CrearLibroRequest request);
 
 
-        Task<bool> EliminarAsync(int id);
+        Task<bool> EliminarAsync(string isbn);
     }
 }

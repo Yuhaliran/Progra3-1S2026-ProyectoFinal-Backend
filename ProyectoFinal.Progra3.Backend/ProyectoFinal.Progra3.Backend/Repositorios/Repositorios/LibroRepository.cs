@@ -10,10 +10,8 @@
 
     public class LibroRepository : ILibroRepository
     {
-        // Variable para manejar la conexión a la base de datos
         private readonly IDbConnection _db;
 
-        // El constructor recibe la conexión, igual que en Usuarios
         public LibroRepository(IDbConnection db)
         {
             _db = db;
@@ -21,97 +19,72 @@
 
         public async Task<IEnumerable<LibroResponse>> ObtenerTodosAsync()
         {
-            // Escribimos nuestra consulta SQL para traer todos los libros
-            string sql = @" SELECT IdLibro, 
-                                   Nombre, 
+            string sql = @" SELECT ISBN, 
+                                   Titulo, 
                                    Autor, 
-                                   Genero, 
-                                   Isbn, 
-                                   FotoLibroUrl, 
-                                   Sinopsis 
+                                   AnioPublicacion 
                               FROM dbo.Libros";
 
-            // QueryAsync devuelve una lista de LibroResponse
             return await _db.QueryAsync<LibroResponse>(sql);
         }
 
-        public async Task<LibroResponse> ObtenerPorIdAsync(int id)
+        public async Task<LibroResponse> ObtenerPorIsbnAsync(string isbn)
         {
-            // Consulta SQL con un filtro WHERE
-            string sql = @" SELECT IdLibro, 
-                                   Nombre, 
+            string sql = @" SELECT ISBN, 
+                                   Titulo, 
                                    Autor, 
-                                   Genero, 
-                                   Isbn, 
-                                   FotoLibroUrl, 
-                                   Sinopsis 
+                                   AnioPublicacion 
                               FROM dbo.Libros 
-                             WHERE IdLibro = @IdLibro";
+                             WHERE ISBN = @ISBN";
 
-            // Pasamos el parámetro @IdLibro de forma segura
-            return await _db.QueryFirstOrDefaultAsync<LibroResponse>(sql, new { IdLibro = id });
+            return await _db.QueryFirstOrDefaultAsync<LibroResponse>(sql, new { ISBN = isbn });
         }
 
-        public async Task<int> CrearAsync(CrearLibroRequest request)
+        public async Task<string> CrearAsync(CrearLibroRequest request)
         {
-            // Insertamos los datos y recuperamos el nuevo ID generado
+            
             string sql = @" INSERT INTO dbo.Libros (
-                                        Nombre, 
+                                        ISBN,
+                                        Titulo, 
                                         Autor, 
-                                        Genero, 
-                                        Isbn, 
-                                        FotoLibroUrl, 
-                                        Sinopsis
+                                        AnioPublicacion
                                    ) 
                             VALUES (
-                                        @Nombre, 
+                                        @ISBN,
+                                        @Titulo, 
                                         @Autor, 
-                                        @Genero, 
-                                        @Isbn, 
-                                        @FotoLibroUrl, 
-                                        @Sinopsis
-                                   );
-                            
-                            SELECT CAST(SCOPE_IDENTITY() AS int);";
+                                        @AnioPublicacion
+                                   );";
 
-            // QuerySingleAsync ejecuta el INSERT y nos devuelve el ID que arrojó SCOPE_IDENTITY()
-            return await _db.QuerySingleAsync<int>(sql, request);
+            await _db.ExecuteAsync(sql, request);
+            return request.ISBN; 
         }
 
-        public async Task<bool> ActualizarAsync(int id, CrearLibroRequest request)
+        public async Task<bool> ActualizarAsync(string isbn, CrearLibroRequest request)
         {
-            // Consulta para actualizar los campos
             string sql = @" UPDATE dbo.Libros 
-                               SET Nombre = @Nombre, 
+                               SET Titulo = @Titulo, 
                                    Autor = @Autor, 
-                                   Genero = @Genero, 
-                                   Isbn = @Isbn, 
-                                   FotoLibroUrl = @FotoLibroUrl, 
-                                   Sinopsis = @Sinopsis 
-                             WHERE IdLibro = @IdLibro";
+                                   AnioPublicacion = @AnioPublicacion 
+                             WHERE ISBN = @ISBNBusqueda"; 
 
-            // Preparamos los parámetros combinando el ID de la URL y los datos del request
             var parametros = new
             {
-                IdLibro = id,
-                request.Nombre,
+                ISBNBusqueda = isbn,
+                request.Titulo,
                 request.Autor,
-                request.Genero,
-                request.Isbn,
-                request.FotoLibroUrl,
-                request.Sinopsis
+                request.AnioPublicacion
             };
 
-            // ExecuteAsync devuelve el número de filas afectadas. Si es mayor a 0, fue exitoso.
             var filasAfectadas = await _db.ExecuteAsync(sql, parametros);
             return filasAfectadas > 0;
         }
 
-        public async Task<bool> EliminarAsync(int id)
+        public async Task<bool> EliminarAsync(string isbn)
         {
-            string sql = @" DELETE FROM dbo.Libros WHERE IdLibro = @IdLibro";
+            string sql = @" DELETE FROM dbo.Libros WHERE ISBN = @ISBN";
 
-            var filasAfectadas = await _db.ExecuteAsync(sql, new { IdLibro = id });
+            var filasAfectadas = await _db.ExecuteAsync(sql, new { ISBN = isbn });
             return filasAfectadas > 0;
         }
     }
