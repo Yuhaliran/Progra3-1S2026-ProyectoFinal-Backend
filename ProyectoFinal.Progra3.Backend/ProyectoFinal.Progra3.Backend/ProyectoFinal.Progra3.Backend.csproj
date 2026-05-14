@@ -9,15 +9,19 @@
 
   <ItemGroup>
     <None Remove="Database\001_EsquemaInicial.sql" />
+    <None Remove="Database\002_AgregarPassword.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Database\001_EsquemaInicial.sql" />
+    <EmbeddedResource Include="Database\002_AgregarPassword.sql" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
     <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="dbup-sqlserver" Version="7.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>

@@ -1,0 +1,8 @@
+namespace ProyectoFinal.Progra3.Backend.Modelos.Request.Auth
+{
+    public class LoginRequest
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}

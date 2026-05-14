@@ -1,7 +1,8 @@
-﻿namespace ProyectoFinal.Progra3.Backend.Repositorios.Repositorios
+namespace ProyectoFinal.Progra3.Backend.Repositorios.Repositorios
 {
     using Dapper;
     using System.Data;
+    using ProyectoFinal.Progra3.Backend.Modelos.Response.Auth;
     using ProyectoFinal.Progra3.Backend.Repositorios.Interfaces;
     using ProyectoFinal.Progra3.Backend.Modelos.Request.Usuarios;
     using ProyectoFinal.Progra3.Backend.Modelos.Response.Usuarios;
@@ -37,7 +38,8 @@
                                                   Apellidos,
                                                   DPI,
                                                   Email,
-                                                  Telefono
+                                                  Telefono,
+                                                  PasswordHash
                                                  )
                                           VALUES (
                                                   @IdRol,
@@ -46,12 +48,79 @@
                                                   @Apellidos,
                                                   @DPI,
                                                   @Email,
-                                                  @Telefono
+                                                  @Telefono,
+                                                  @PasswordHash
                                                  );
                 
                 SELECT CAST(SCOPE_IDENTITY() AS int);";
 
-            return await _db.QuerySingleAsync<int>(sql, request);
+            var parametros = new {
+                request.IdRol,
+                request.Nombres,
+                request.Apellidos,
+                request.DPI,
+                request.Email,
+                request.Telefono,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password)
+            };
+
+            return await _db.QuerySingleAsync<int>(sql, parametros);
+        }
+
+        public async Task<IEnumerable<UsuarioResponse>> ObtenerTodosAsync()
+        {
+            string sql = @" SELECT u.IdUsuario,
+                                   u.Nombres,
+                                   u.Apellidos,
+                                   r.NombreRol AS Rol
+                              FROM dbo.Usuarios u
+                                   INNER JOIN Roles r ON u.IdRol = r.IdRol";
+
+            return await _db.QueryAsync<UsuarioResponse>(sql);
+        }
+
+        public async Task<bool> ActualizarAsync(int id, EditarUsuarioRequest request)
+        {
+            string sql = @" UPDATE dbo.Usuarios
+                               SET Nombres = @Nombres,
+                                   Apellidos = @Apellidos,
+                                   Telefono = @Telefono,
+                                   IdEstado = @IdEstado
+                             WHERE IdUsuario = @IdUsuario";
+
+            var parametros = new {
+                request.Nombres,
+                request.Apellidos,
+                request.Telefono,
+                request.IdEstado,
+                IdUsuario = id
+            };
+
+            int filasAfectadas = await _db.ExecuteAsync(sql, parametros);
+            return filasAfectadas > 0;
+        }
+
+        public async Task<bool> EliminarAsync(int id)
+        {
+            // Usaremos borrado lógico cambiando el IdEstado a 0 (Inactivo) en lugar de un DELETE físico
+            string sql = @" UPDATE dbo.Usuarios SET IdEstado = 0 WHERE IdUsuario = @IdUsuario";
+            
+            int filasAfectadas = await _db.ExecuteAsync(sql, new { IdUsuario = id });
+            return filasAfectadas > 0;
+        }
+
+        public async Task<UsuarioAuthModel?> ObtenerPorEmailParaAuthAsync(string email)
+        {
+            string sql = @" SELECT u.IdUsuario,
+                                   u.Email,
+                                   u.PasswordHash,
+                                   u.IdRol,
+                                   r.NombreRol AS Rol
+                              FROM dbo.Usuarios u
+                                   INNER JOIN Roles r ON u.IdRol = r.IdRol
+                             WHERE u.Email = @Email AND u.IdEstado = 1"; // Solo usuarios activos
+
+            return await _db.QueryFirstOrDefaultAsync<UsuarioAuthModel>(sql, new { Email = email });
         }
     }
 }

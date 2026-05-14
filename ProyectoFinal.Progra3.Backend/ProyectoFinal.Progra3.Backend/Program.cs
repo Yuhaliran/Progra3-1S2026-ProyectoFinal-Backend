@@ -7,6 +7,9 @@ namespace ProyectoFinal.Progra3.Backend
     using ProyectoFinal.Progra3.Backend.Repositorios.Interfaces;
     using ProyectoFinal.Progra3.Backend.Repositorios.Repositorios;
     using ProyectoFinal.Progra3.Backend.Repositorios;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Microsoft.IdentityModel.Tokens;
+    using System.Text;
 
     public class Program
     {
@@ -40,6 +43,25 @@ namespace ProyectoFinal.Progra3.Backend
             builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
             builder.Services.AddScoped<ILibroRepository, LibroRepository>();
 
+            var secretKey = builder.Configuration.GetSection("JwtSettings").GetValue<string>("SecretKey");
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey ?? ""))
+                };
+            });
+
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -56,6 +78,7 @@ namespace ProyectoFinal.Progra3.Backend
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

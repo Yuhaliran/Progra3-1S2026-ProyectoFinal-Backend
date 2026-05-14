@@ -1,4 +1,4 @@
-﻿namespace ProyectoFinal.Progra3.Backend.Modelos.Request.Usuarios
+namespace ProyectoFinal.Progra3.Backend.Modelos.Request.Usuarios
 {
     public class CrearUsuarioRequest
     {
@@ -7,6 +7,7 @@
         public string Apellidos { get; set; } = string.Empty;
         public string? DPI { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
         public string? Telefono { get; set; }
     }
 }
