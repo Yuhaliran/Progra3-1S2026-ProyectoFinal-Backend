@@ -50,5 +50,32 @@
                 return StatusCode(500, new { mensaje = "Ocurrio un error al procesar ", detalle = ex.Message });
             }
         }
+
+        [HttpPut("actualizar/{id}")]
+        public async Task<ActionResult> PutUsuario(int id, [FromBody] EditarUsuarioRequest request)
+        {
+            var actualizado = await _usuarioRepository.ActualizarAsync(id, request);
+            if (!actualizado)
+            {
+                return NotFound(new { mensaje = $"No se pudo actualizar. El usuario con ID {id} no existe." });
+            }
+            return Ok(new { mensaje = "Usuario acutalizado correctamente" });
+
+
+        }
+
+        [HttpDelete("eliminar/{id}")]
+        public async Task <ActionResult> DeleteUsuario(int id)
+        {
+            var eliminado = await _usuarioRepository.EliminarAsync(id);
+
+            if(!eliminado)
+            {
+                return NotFound(new { mensaje = $"No se pudo elimiminar. El Usuario con ID {id} no existe." });
+            }
+
+            return Ok(new { mensaje = "Usuario eliminado correctamente" });
+        }
+
     }
 }

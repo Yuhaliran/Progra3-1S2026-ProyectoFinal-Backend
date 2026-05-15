@@ -53,5 +53,42 @@
 
             return await _db.QuerySingleAsync<int>(sql, request);
         }
+
+        public async Task<bool> ActualizarAsync(int id, EditarUsuarioRequest request)
+        {
+            // Consulta SQL para actualizar solo los campos definidos en tu modelo
+            string sql = @" UPDATE dbo.Usuarios 
+                               SET IdEstado = @IdEstado, 
+                                   Nombres = @Nombres, 
+                                   Apellidos = @Apellidos, 
+                                   Telefono = @Telefono 
+                             WHERE IdUsuario = @IdUsuario";
+
+            // Emparejamos el ID que viene de la ruta con los datos del request
+            var parametros = new
+            {
+                IdUsuario = id,
+                request.IdEstado,
+                request.Nombres,
+                request.Apellidos,
+                request.Telefono
+            };
+
+            // Ejecutamos la consulta y verificamos si se modificó al menos una fila
+            var filasAfectadas = await _db.ExecuteAsync(sql, parametros);
+            return filasAfectadas > 0;
+        }
+
+        public async Task<bool> EliminarAsync(int id)
+        {
+            // Consulta SQL para borrar el registro por su llave principal
+            string sql = @" DELETE FROM dbo.Usuarios WHERE IdUsuario = @IdUsuario";
+
+            var filasAfectadas = await _db.ExecuteAsync(sql, new { IdUsuario = id });
+            return filasAfectadas > 0;
+        }
+
+
+
     }
 }

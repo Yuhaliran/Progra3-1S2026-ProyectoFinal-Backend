@@ -8,5 +8,9 @@
         Task<UsuarioResponse> ObtenerPorIdAsync(int id);
 
         Task<int> CrearAsync(CrearUsuarioRequest request);
+
+        Task <bool> ActualizarAsync(int id, EditarUsuarioRequest request);
+
+        Task<bool> EliminarAsync(int id);
     }
 }
