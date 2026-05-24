@@ -10,11 +10,15 @@
   <ItemGroup>
     <None Remove="Database\001_EsquemaInicial.sql" />
     <None Remove="Database\002_AgregarPassword.sql" />
+    <None Remove="Database\003_ModificarTablaLibros.sql" />
+    <None Remove="Database\004_InsertarLibros.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Database\001_EsquemaInicial.sql" />
     <EmbeddedResource Include="Database\002_AgregarPassword.sql" />
+    <EmbeddedResource Include="Database\003_ModificarTablaLibros.sql" />
+    <EmbeddedResource Include="Database\004_InsertarLibros.sql" />
   </ItemGroup>
 
   <ItemGroup>

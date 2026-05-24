@@ -19,61 +19,45 @@
 
         public async Task<IEnumerable<LibroResponse>> ObtenerTodosAsync()
         {
-            string sql = @" SELECT ISBN, 
-                                   Titulo, 
-                                   Autor, 
-                                   AnioPublicacion 
-                              FROM dbo.Libros";
-
+            // Agregamos Portada al SELECT
+            string sql = @" SELECT ISBN, Titulo, Autor, AnioPublicacion, Portada FROM dbo.Libros";
             return await _db.QueryAsync<LibroResponse>(sql);
         }
 
         public async Task<LibroResponse> ObtenerPorIsbnAsync(string isbn)
         {
-            string sql = @" SELECT ISBN, 
-                                   Titulo, 
-                                   Autor, 
-                                   AnioPublicacion 
-                              FROM dbo.Libros 
-                             WHERE ISBN = @ISBN";
-
+            // Agregamos Portada al SELECT
+            string sql = @" SELECT ISBN, Titulo, Autor, AnioPublicacion, Portada FROM dbo.Libros WHERE ISBN = @ISBN";
             return await _db.QueryFirstOrDefaultAsync<LibroResponse>(sql, new { ISBN = isbn });
         }
 
         public async Task<string> CrearAsync(CrearLibroRequest request)
         {
-            
-            string sql = @" INSERT INTO dbo.Libros (
-                                        ISBN,
-                                        Titulo, 
-                                        Autor, 
-                                        AnioPublicacion
-                                   ) 
-                            VALUES (
-                                        @ISBN,
-                                        @Titulo, 
-                                        @Autor, 
-                                        @AnioPublicacion
-                                   );";
+            // Agregamos Portada e @Portada al INSERT
+            string sql = @" INSERT INTO dbo.Libros (ISBN, Titulo, Autor, AnioPublicacion, Portada) 
+                            VALUES (@ISBN, @Titulo, @Autor, @AnioPublicacion, @Portada);";
 
             await _db.ExecuteAsync(sql, request);
-            return request.ISBN; 
+            return request.ISBN;
         }
 
         public async Task<bool> ActualizarAsync(string isbn, CrearLibroRequest request)
         {
+            // Agregamos Portada = @Portada al UPDATE
             string sql = @" UPDATE dbo.Libros 
                                SET Titulo = @Titulo, 
                                    Autor = @Autor, 
-                                   AnioPublicacion = @AnioPublicacion 
-                             WHERE ISBN = @ISBNBusqueda"; 
+                                   AnioPublicacion = @AnioPublicacion,
+                                   Portada = @Portada 
+                             WHERE ISBN = @ISBNBusqueda";
 
             var parametros = new
             {
                 ISBNBusqueda = isbn,
                 request.Titulo,
                 request.Autor,
-                request.AnioPublicacion
+                request.AnioPublicacion,
+                request.Portada
             };
 
             var filasAfectadas = await _db.ExecuteAsync(sql, parametros);
@@ -83,7 +67,6 @@
         public async Task<bool> EliminarAsync(string isbn)
         {
             string sql = @" DELETE FROM dbo.Libros WHERE ISBN = @ISBN";
-
             var filasAfectadas = await _db.ExecuteAsync(sql, new { ISBN = isbn });
             return filasAfectadas > 0;
         }
