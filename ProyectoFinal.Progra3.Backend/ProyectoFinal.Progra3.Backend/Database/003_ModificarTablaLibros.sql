@@ -1,0 +1,2 @@
+﻿
+ALTER TABLE Libros ADD Portada NVARCHAR(MAX) NULL;
