@@ -12,6 +12,7 @@
     <None Remove="Database\002_AgregarPassword.sql" />
     <None Remove="Database\003_ModificarTablaLibros.sql" />
     <None Remove="Database\004_InsertarLibros.sql" />
+    <None Remove="Database\005_BitacoraLectura.sql" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +20,7 @@
     <EmbeddedResource Include="Database\002_AgregarPassword.sql" />
     <EmbeddedResource Include="Database\003_ModificarTablaLibros.sql" />
     <EmbeddedResource Include="Database\004_InsertarLibros.sql" />
+    <EmbeddedResource Include="Database\005_BitacoraLectura.sql" />
   </ItemGroup>
 
   <ItemGroup>

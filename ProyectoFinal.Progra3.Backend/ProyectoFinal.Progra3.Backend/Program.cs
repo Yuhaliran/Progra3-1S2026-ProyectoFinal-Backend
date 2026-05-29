@@ -42,6 +42,7 @@ namespace ProyectoFinal.Progra3.Backend
             // Add services to the container.
             builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
             builder.Services.AddScoped<ILibroRepository, LibroRepository>();
+            builder.Services.AddScoped<IColaLecturaRepository, ColaLecturaRepository>();
 
             var secretKey = builder.Configuration.GetSection("JwtSettings").GetValue<string>("SecretKey");
 

@@ -61,6 +61,7 @@ namespace ProyectoFinal.Progra3.Backend.Controllers
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, usuario.IdUsuario.ToString()),
+                new Claim("IdUsuario", usuario.IdUsuario.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, usuario.Email),
                 new Claim("Rol", usuario.Rol),
                 new Claim("IdRol", usuario.IdRol.ToString()),
