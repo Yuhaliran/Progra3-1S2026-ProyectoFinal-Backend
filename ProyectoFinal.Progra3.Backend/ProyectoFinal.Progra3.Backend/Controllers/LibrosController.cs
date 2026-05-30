@@ -1,12 +1,14 @@
 ﻿namespace ProyectoFinal.Progra3.Backend.Controladores
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Text.Json;
+    using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
+    using ProyectoFinal.Progra3.Backend.Modelos.Libros;
     using ProyectoFinal.Progra3.Backend.Modelos.Request.Libros;
     using ProyectoFinal.Progra3.Backend.Modelos.Response.Libros;
     using ProyectoFinal.Progra3.Backend.Repositorios.Interfaces;
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
 
     [Route("api/[controller]")]
     [ApiController]
@@ -90,5 +92,91 @@
 
             return Ok(new { mensaje = "Libro eliminado correctamente" });
         }
+
+        [HttpGet("buscar-unificado/{isbn}")]
+        public async Task<IActionResult> BuscarLibroUnificado(string isbn)
+        {
+            
+            // FASE 1: BÚSQUEDA LOCAL (Comentada temporalmente)
+         
+            
+            var libroLocal = await _libroRepository.ObtenerPorIsbnAsync(isbn);
+            if (libroLocal != null)
+            {
+                var respuestaLocal = new LibroDto
+                {
+                    ISBN = libroLocal.ISBN,
+                    Titulo = libroLocal.Titulo,
+                    Autor = libroLocal.Autor,
+                    AnioPublicacion = libroLocal.AnioPublicacion,
+                    Portada = libroLocal.Portada 
+                };
+                return Ok(respuestaLocal);
+            }
+            
+
+          
+            // FASE 2: BÚSQUEDA EXTERNA (OpenLibrary Search API)
+           
+
+          
+            string url = $"https://openlibrary.org/search.json?isbn={isbn}";
+
+            using HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "XandriaBiblioteca/1.0");
+
+            HttpResponseMessage response = await client.GetAsync(url);
+
+            if (response.IsSuccessStatusCode)
+            {
+                string json = await response.Content.ReadAsStringAsync();
+                using JsonDocument doc = JsonDocument.Parse(json);
+                JsonElement root = doc.RootElement;
+
+                // Verificamos si encontró al menos un documento válido
+                if (root.TryGetProperty("numFound", out JsonElement numFound) && numFound.GetInt32() > 0)
+                {
+                    var bookNode = root.GetProperty("docs")[0];
+
+                    string titulo = bookNode.TryGetProperty("title", out var titleElement)
+                        ? titleElement.GetString()
+                        : "Sin Título";
+
+                    string autor = "Autor Desconocido";
+                    if (bookNode.TryGetProperty("author_name", out var authorsArray) && authorsArray.GetArrayLength() > 0)
+                    {
+                        autor = authorsArray[0].GetString();
+                    }
+
+                    int? anioFiltrado = null;
+                    if (bookNode.TryGetProperty("first_publish_year", out var yearElement) && yearElement.ValueKind == JsonValueKind.Number)
+                    {
+                        anioFiltrado = yearElement.GetInt32();
+                    }
+
+                    
+                    string portadaUrl = $"https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg";
+
+                    var libroExterno = new LibroDto
+                    {
+                        ISBN = isbn,
+                        Titulo = titulo,
+                        Autor = autor,
+                        AnioPublicacion = anioFiltrado,
+                        Portada = portadaUrl
+                    };
+
+                    return Ok(libroExterno);
+                }
+                else
+                {
+                    return NotFound(new { mensaje = $"OpenLibrary no encontró ningún libro con el código: {isbn}." });
+                }
+            }
+
+            return StatusCode(500, new { mensaje = "Error al intentar conectar con OpenLibrary." });
+        }
+
+
     }
 }
