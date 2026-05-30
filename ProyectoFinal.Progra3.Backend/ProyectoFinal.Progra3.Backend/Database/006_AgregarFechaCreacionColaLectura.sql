@@ -1,0 +1,2 @@
+ALTER TABLE dbo.ColaLectura 
+ADD FechaCreacion DATETIME NOT NULL DEFAULT GETDATE();

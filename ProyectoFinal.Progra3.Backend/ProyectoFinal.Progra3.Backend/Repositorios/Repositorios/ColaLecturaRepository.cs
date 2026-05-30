@@ -20,11 +20,12 @@ namespace ProyectoFinal.Progra3.Backend.Repositorios.Repositorios
         {
             string sql = @"
                 SELECT c.IdColaLectura, c.IdUsuario, c.ISBN, c.IdEstadoLectura, c.FechaInicio, c.FechaFin, c.MeGusto,
-                       e.NombreEstado, l.Titulo AS TituloLibro, l.Autor AS AutorLibro
+                       e.NombreEstado, l.Titulo AS TituloLibro, l.Autor AS AutorLibro, c.FechaCreacion
                 FROM ColaLectura c
                 INNER JOIN EstadosLectura e ON c.IdEstadoLectura = e.IdEstadoLectura
                 INNER JOIN Libros l ON c.ISBN = l.ISBN
                 WHERE c.IdUsuario = @IdUsuario
+                ORDER BY c.FechaCreacion ASC
             ";
             return await _db.QueryAsync<ColaLecturaResponse>(sql, new { IdUsuario = idUsuario });
         }
@@ -33,7 +34,7 @@ namespace ProyectoFinal.Progra3.Backend.Repositorios.Repositorios
         {
             string sql = @"
                 SELECT c.IdColaLectura, c.IdUsuario, c.ISBN, c.IdEstadoLectura, c.FechaInicio, c.FechaFin, c.MeGusto,
-                       e.NombreEstado, l.Titulo AS TituloLibro, l.Autor AS AutorLibro
+                       e.NombreEstado, l.Titulo AS TituloLibro, l.Autor AS AutorLibro, c.FechaCreacion
                 FROM ColaLectura c
                 INNER JOIN EstadosLectura e ON c.IdEstadoLectura = e.IdEstadoLectura
                 INNER JOIN Libros l ON c.ISBN = l.ISBN
