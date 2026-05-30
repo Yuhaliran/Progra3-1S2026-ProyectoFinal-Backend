@@ -96,30 +96,28 @@
         [HttpGet("buscar-unificado/{isbn}")]
         public async Task<IActionResult> BuscarLibroUnificado(string isbn)
         {
-            
-            // FASE 1: BÚSQUEDA LOCAL (Comentada temporalmente)
-         
-            
+    
+
+            // Usamos tu repositorio para buscar el libro en la base de datos
             var libroLocal = await _libroRepository.ObtenerPorIsbnAsync(isbn);
+
             if (libroLocal != null)
             {
+                // Si ya existe localmente, lo devolvemos inmediatamente
                 var respuestaLocal = new LibroDto
                 {
                     ISBN = libroLocal.ISBN,
                     Titulo = libroLocal.Titulo,
                     Autor = libroLocal.Autor,
                     AnioPublicacion = libroLocal.AnioPublicacion,
-                    Portada = libroLocal.Portada 
+                    Portada = libroLocal.Portada
                 };
                 return Ok(respuestaLocal);
             }
-            
 
-          
-            // FASE 2: BÚSQUEDA EXTERNA (OpenLibrary Search API)
+            
            
 
-          
             string url = $"https://openlibrary.org/search.json?isbn={isbn}";
 
             using HttpClient client = new HttpClient();
@@ -133,14 +131,13 @@
                 using JsonDocument doc = JsonDocument.Parse(json);
                 JsonElement root = doc.RootElement;
 
-                // Verificamos si encontró al menos un documento válido
+                // Verificamos si OpenLibrary encontró el libro
                 if (root.TryGetProperty("numFound", out JsonElement numFound) && numFound.GetInt32() > 0)
                 {
                     var bookNode = root.GetProperty("docs")[0];
 
-                    string titulo = bookNode.TryGetProperty("title", out var titleElement)
-                        ? titleElement.GetString()
-                        : "Sin Título";
+                    // Extraemos la información
+                    string titulo = bookNode.TryGetProperty("title", out var titleElement) ? titleElement.GetString() : "Sin Título";
 
                     string autor = "Autor Desconocido";
                     if (bookNode.TryGetProperty("author_name", out var authorsArray) && authorsArray.GetArrayLength() > 0)
@@ -148,22 +145,49 @@
                         autor = authorsArray[0].GetString();
                     }
 
-                    int? anioFiltrado = null;
+                    int anioFiltrado = 0;
                     if (bookNode.TryGetProperty("first_publish_year", out var yearElement) && yearElement.ValueKind == JsonValueKind.Number)
                     {
                         anioFiltrado = yearElement.GetInt32();
                     }
 
-                    
+                   
                     string portadaUrl = $"https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg";
+                    string portadaBase64 = "Sin Portada";
 
-                    var libroExterno = new LibroDto
+                    try
+                    {
+                        byte[] imageBytes = await client.GetByteArrayAsync(portadaUrl);
+                        portadaBase64 = "data:image/jpeg;base64," + Convert.ToBase64String(imageBytes);
+                    }
+                    catch
+                    {
+                        // Si la imagen falla o no existe, se queda con el texto "Sin Portada"
+                    }
+
+                
+
+                    // Creamos el objeto exactamente como lo pide tu interfaz ILibroRepository
+                    var nuevoLibroRequest = new CrearLibroRequest
                     {
                         ISBN = isbn,
                         Titulo = titulo,
                         Autor = autor,
                         AnioPublicacion = anioFiltrado,
-                        Portada = portadaUrl
+                        Portada = portadaBase64
+                    };
+
+                    // Ejecutamos la inserción en la base de datos local
+                    await _libroRepository.CrearAsync(nuevoLibroRequest);
+
+
+                    var libroExterno = new LibroDto
+                    {
+                        ISBN = nuevoLibroRequest.ISBN,
+                        Titulo = nuevoLibroRequest.Titulo,
+                        Autor = nuevoLibroRequest.Autor,
+                        AnioPublicacion = nuevoLibroRequest.AnioPublicacion,
+                        Portada = nuevoLibroRequest.Portada
                     };
 
                     return Ok(libroExterno);
