@@ -1,4 +1,4 @@
-﻿namespace ProyectoFinal.Progra3.Backend.Repositorios.Interfaces
+namespace ProyectoFinal.Progra3.Backend.Repositorios.Interfaces
 {
     using ProyectoFinal.Progra3.Backend.Modelos.Request.Libros;
     using ProyectoFinal.Progra3.Backend.Modelos.Response.Libros;
@@ -20,5 +20,7 @@
 
 
         Task<bool> EliminarAsync(string isbn);
+
+        Task<IEnumerable<LibroResponse>> BuscarPorTituloOAutorAsync(string query);
     }
 }

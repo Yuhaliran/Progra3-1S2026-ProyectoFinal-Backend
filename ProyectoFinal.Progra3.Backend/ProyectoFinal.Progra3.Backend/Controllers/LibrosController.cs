@@ -1,4 +1,4 @@
-﻿namespace ProyectoFinal.Progra3.Backend.Controladores
+namespace ProyectoFinal.Progra3.Backend.Controladores
 {
     using System;
     using System.Collections.Generic;
@@ -201,6 +201,15 @@
             return StatusCode(500, new { mensaje = "Error al intentar conectar con OpenLibrary." });
         }
 
-
+        [HttpGet("buscar-local")]
+        public async Task<ActionResult<IEnumerable<LibroResponse>>> BuscarLocal([FromQuery] string query)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                return Ok(new List<LibroResponse>());
+            }
+            var libros = await _libroRepository.BuscarPorTituloOAutorAsync(query);
+            return Ok(libros);
+        }
     }
 }

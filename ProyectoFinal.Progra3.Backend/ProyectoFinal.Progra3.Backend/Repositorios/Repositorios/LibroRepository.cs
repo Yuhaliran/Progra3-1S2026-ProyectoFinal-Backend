@@ -1,4 +1,4 @@
-﻿namespace ProyectoFinal.Progra3.Backend.Repositorios
+namespace ProyectoFinal.Progra3.Backend.Repositorios
 {
     using Dapper;
     using System.Data;
@@ -69,6 +69,14 @@
             string sql = @" DELETE FROM dbo.Libros WHERE ISBN = @ISBN";
             var filasAfectadas = await _db.ExecuteAsync(sql, new { ISBN = isbn });
             return filasAfectadas > 0;
+        }
+
+        public async Task<IEnumerable<LibroResponse>> BuscarPorTituloOAutorAsync(string query)
+        {
+            string sql = @" SELECT ISBN, Titulo, Autor, AnioPublicacion, Portada 
+                              FROM dbo.Libros 
+                             WHERE Titulo LIKE @Query OR Autor LIKE @Query";
+            return await _db.QueryAsync<LibroResponse>(sql, new { Query = "%" + query + "%" });
         }
     }
 }

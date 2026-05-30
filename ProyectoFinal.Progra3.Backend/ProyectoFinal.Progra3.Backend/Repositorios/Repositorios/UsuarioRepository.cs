@@ -21,7 +21,11 @@ namespace ProyectoFinal.Progra3.Backend.Repositorios.Repositorios
             string sql = @" SELECT u.IdUsuario,
                                    u.Nombres,
                                    u.Apellidos,
-                                   r.NombreRol AS Rol
+                                   u.DPI,
+                                   u.Email,
+                                   u.Telefono,
+                                   r.NombreRol AS Rol,
+                                   CASE WHEN u.IdEstado = 1 THEN 'Activo' ELSE 'Inactivo' END AS Estado
                               FROM dbo.Usuarios u
                                    INNER JOIN Roles r ON u.IdRol = r.IdRol
                              WHERE u.IdUsuario = @IdUsuario";
