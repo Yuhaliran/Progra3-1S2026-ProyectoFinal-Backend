@@ -76,5 +76,12 @@ namespace ProyectoFinal.Progra3.Backend.Repositorios.Repositorios
             string sql = "SELECT IdEstadoLectura, NombreEstado FROM EstadosLectura";
             return await _db.QueryAsync<EstadoLectura>(sql);
         }
+
+        public async Task<bool> EliminarRegistroColaAsync(int idUsuario, string isbn)
+        {
+            string sql = "DELETE FROM dbo.ColaLectura WHERE IdUsuario = @IdUsuario AND ISBN = @ISBN";
+            int filasAfectadas = await _db.ExecuteAsync(sql, new { IdUsuario = idUsuario, ISBN = isbn });
+            return filasAfectadas > 0;
+        }
     }
 }

@@ -10,5 +10,6 @@ namespace ProyectoFinal.Progra3.Backend.Repositorios.Interfaces
         Task<ColaLecturaResponse?> ObtenerRegistroColaAsync(int idUsuario, string isbn);
         Task<int> AgregarOActualizarRegistroColaAsync(int idUsuario, ColaLecturaRequest request);
         Task<IEnumerable<EstadoLectura>> ObtenerEstadosLecturaAsync();
+        Task<bool> EliminarRegistroColaAsync(int idUsuario, string isbn);
     }
 }

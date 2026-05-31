@@ -74,5 +74,17 @@ namespace ProyectoFinal.Progra3.Backend.Controllers
             var estados = await _colaLecturaRepository.ObtenerEstadosLecturaAsync();
             return Ok(estados);
         }
+
+        [HttpDelete("{isbn}")]
+        public async Task<IActionResult> EliminarRegistro(string isbn)
+        {
+            int idUsuario = ObtenerIdUsuario();
+            var eliminado = await _colaLecturaRepository.EliminarRegistroColaAsync(idUsuario, isbn);
+            if (!eliminado)
+            {
+                return NotFound(new { Mensaje = "No se pudo eliminar el registro. No existe en tu cola de lectura." });
+            }
+            return Ok(new { Mensaje = "Registro eliminado exitosamente." });
+        }
     }
 }
