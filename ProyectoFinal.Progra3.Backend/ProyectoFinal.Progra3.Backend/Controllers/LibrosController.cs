@@ -211,5 +211,50 @@ namespace ProyectoFinal.Progra3.Backend.Controladores
             var libros = await _libroRepository.BuscarPorTituloOAutorAsync(query);
             return Ok(libros);
         }
+
+
+        [HttpGet("relacionados/{isbn}")]
+        public async Task<IActionResult> ObtenerRelacionadosPorGrafo(string isbn)
+        {
+
+            var todosLosLibros = await _libroRepository.ObtenerTodosAsync();
+
+            // Verificamos que el libro actual exista
+            var libroActual = todosLosLibros.FirstOrDefault(l => l.ISBN == isbn);
+            if (libroActual == null)
+            {
+                return NotFound(new { mensaje = "El libro principal no existe." });
+            }
+
+
+            var grafoAdyacencia = new Dictionary<string, List<LibroResponse>>();
+
+            // todos los Nodos (Vértices)
+            foreach (var libro in todosLosLibros)
+            {
+                grafoAdyacencia[libro.ISBN] = new List<LibroResponse>();
+            }
+
+            
+            foreach (var libroA in todosLosLibros)
+            {
+                foreach (var libroB in todosLosLibros)
+                {
+                   
+                    if (libroA.ISBN != libroB.ISBN && libroA.Autor == libroB.Autor)
+                    {
+                        grafoAdyacencia[libroA.ISBN].Add(libroB);
+                    }
+                }
+            }
+
+            // Buscamos los nodos vecinos del libro que nos pidieron
+            var nodosVecinos = grafoAdyacencia[isbn];
+
+
+            var librosRecomendados = nodosVecinos.Take(4).ToList();
+
+            return Ok(librosRecomendados);
+        }
     }
 }
