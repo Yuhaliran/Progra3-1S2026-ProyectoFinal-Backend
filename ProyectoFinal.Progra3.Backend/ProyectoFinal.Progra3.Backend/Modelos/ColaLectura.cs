@@ -9,5 +9,6 @@ namespace ProyectoFinal.Progra3.Backend.Modelos
         public DateTime? FechaInicio { get; set; }
         public DateTime? FechaFin { get; set; }
         public bool? MeGusto { get; set; }
+        public DateTime FechaCreacion { get; set; }
     }
 }
